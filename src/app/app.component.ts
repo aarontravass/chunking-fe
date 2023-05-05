@@ -9,18 +9,20 @@ import { AppService } from './app.service';
 export class AppComponent {
     title = 'chunking-fe';
     file = new Blob();
-    private readonly chunk_size = 30;
+    private readonly chunk_size = 10000;
     constructor(private readonly appService: AppService) {}
-    onChange(event: any) {
+    async onChange(event: any) {
         this.file = event.target.files[0];
         console.log(this.file)
+        console.log((await this.file.arrayBuffer()).byteLength)
     }
     async submit() {
         
-        const buff = await this.file.arrayBuffer();
+        const buff = new Uint8Array(await this.file.arrayBuffer());
         console.log(buff)
-        let header_start = 1, header_end = header_start + this.chunk_size - 1, header_total = buff.byteLength;
-        while(header_end<header_total){
+        let header_start = 0, header_end = header_start + this.chunk_size, header_total = buff.byteLength;
+        while(1){
+            console.log(header_start, header_end)
             const data = {
                 data: buff.slice(header_start, header_end)
             }
@@ -29,12 +31,14 @@ export class AppComponent {
             .toPromise()
             .then((res) => {
                 console.log(res);
-                header_start = header_end + 1;
-                header_end = header_end + this.chunk_size;
+               
             })
             .catch((er) => {
                 console.error(er);
             });
+            if(header_end==header_total) break;
+            header_start = header_end;
+            header_end = Math.min(header_start + this.chunk_size, header_total);
             
         }
         

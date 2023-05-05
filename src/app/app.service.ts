@@ -17,7 +17,7 @@ export class AppService {
                             .set('header_start', header_start.toString())
                             .set('header_end', header_end.toString())
                             .set('header_total', header_total.toString())
-        return this.http.post<any>(API_URL + 'api/v1/send', {headers});
+        return this.http.post<any>(API_URL + 'api/v1/send', data, {headers});
            
     }
 
